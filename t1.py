@@ -48,16 +48,22 @@ def newton_raphson(n, a, er):
     k = 0
     nitv = itv
 
-    print('\n## Iterações')
-    while(k < n):
-        nitv[0] = d      
-        f = moveNR(d, a)
-        nitv[1] = f
-        ErroRelativo = abs((f-d))/abs(d)
-        print("I: {}\tRA: {}\tER: {}".format(nitv,d,abs(ErroRelativo)))
+    if(abs(moveNR(d,a)) < 10**(-er)):
+        return (nitv,d)
 
-        if((abs(f) < 10**(-er)) or ((abs(f - d)) < 10**(-er))):
-            return (nitv,d) # d é a raiz aproximada
+    print('\n## Iterações')
+    while(k < n):  
+        f = moveNR(d, a)
+        if(d < f):
+            nitv[0] = d
+        else:
+            nitv[0] = f
+            nitv[1] = d
+        ErroRelativo = abs(abs(f-d)/abs(d))
+        print("I: {}\tRA(d{}): {}\tER: {}".format(nitv,k,d,abs(ErroRelativo)))
+
+        if((abs(moveNR(f,a)) < 10**(-er)) or ((abs(f - d)) < 10**(-er))):
+            return (nitv,f) # d é a raiz aproximada
         d = f
         k = k+1
     return (nitv,d)
@@ -69,24 +75,31 @@ def moveS(d, nd, a):
  
 
 def secante(n, a, er):
-    d = (itv[1] - itv[0])/2
-    nd = itv[1]
+    d = (itv[1] - itv[0])/2 # d0
+    nd = itv[1] # d1
     k = 0
     nitv = itv
+    nitv[0] = d
+
+    if(abs((a*e**d) - (4*d**2)) < 10**(-er)):
+        return (nitv,d)
+    if((abs((a*e**nd) - (4*nd**2)) < 10**(-er)) or (abs(nd-d) < 10**(-er))):
+        return (nitv,nd)
 
     print('\n## Iterações')
     while(k < n):
-        nitv[0] = d
-        f = moveS(d, nd, a)
-        nf = moveS(nd, f, a)
-        ErroRelativod = abs((f-d))/abs(d)
-        ErroRelativond = abs((nf-f))/abs(f)
-        print("I: {}\tRA(d{}): {}\tER(d{}): {}\tRA(d{}): {}\tER(d{}): {}".format(nitv,k,d,k+1,abs(ErroRelativod),nd,k+1,k+2,abs(ErroRelativond)))
-        nitv[1] = f
-        if((abs(f) < 10**(-er)) or (abs(nd-d) < 10**(-er))): 
-            return nd
-        elif((abs(nf) < 10**(-er)) or (abs(nf-f) < 10**(-er))):
-            return f
+        f = moveS(d, nd, a) # d2
+        if(d < f):
+            nitv[0] = d
+        else:
+            nitv[0] = f
+            nitv[1] = d
+        nf = moveS(nd, f, a) # f(d2) -> d3
+        ErroRelativod = abs(abs(f-d)/abs(d))
+        ErroRelativond = abs(abs(nf-f)/abs(f))
+        print("I: {}\tRA(d{}): {}\tER(d{}): {}\tRA(d{}): {}\tER(d{}): {}".format(nitv,k+1,d,k+1,ErroRelativod,k+2,nd,k+2,ErroRelativond))
+        if((abs(nf) < 10**(-er)) or (abs(f-nd) < 10**(-er))): 
+            return (nitv,f)
         d = nd
         nd = f
         k = k+1
@@ -98,10 +111,31 @@ def main():
     a = float(input("Amplitude(a): "))
     er = float(input("Precisão(er): "))
 
-    #Resultado = bissecao(n, a, er)
-    Resultado = newton_raphson(n, a, er)
-    #Resultado = secante(n, a, er)
-    print('\n## Resultado\nIntervalo: {} | Raiz Aproximada: {}\n'.format(Resultado[0],Resultado[1]))
+    # GUI
+    print("\n## Métodos")
+    print("0. Sair")
+    print("1. Bisseção")
+    print("2. Newton-Raphson")
+    print("3. Secante")
+    op = input("Opção: ")
+
+    while((op != '0') and (op != '1') and (op != '2') and (op != '3')):
+        print('Digite uma opção válida! (0. Sair)')
+        op = input("Opção: ")
+        if(op == '0'):
+            break
+    if(op == '1'):
+        Resultado = bissecao(n, a, er)
+    elif(op == '2'):
+        Resultado = newton_raphson(n, a, er)
+    elif(op == '3'):
+        Resultado = secante(n, a, er)
+    else:
+        print('\nAté a próxima!')
+        return 0
+        
+
+    print('\n## Resultado\nIntervalo: {} | Raiz Aproximada: {}'.format(Resultado[0],Resultado[1]))
 
 
 if __name__ == "__main__":
