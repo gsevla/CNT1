@@ -1,75 +1,80 @@
+import random
+
 # f(d) = a*e^d - 4*d^2
 
 # Globals
 itv = [0,1] # intervalo
 e = 2.71 # número de euler
 
-
-def movB(d, a):
+#função do movimento
+def mov(d, a):
     r = a*(e**d)-4*(d**2)
     return r
 
 
 def bissecao(n, a, er):
-    nitv = itv
-    y = nitv[0]
-    z = nitv[1]
-    k = 0
-    if(movB(y,a)*movB(z,a) >= 0):
+    nitv = itv  #copia intervalo para nitv
+    y = nitv[0] #inicio intervalo
+    z = nitv[1] #fim intervalo
+    k = 0       #cont interações
+	
+	#verifica se há raíz entre a e b    
+    if(mov(y,a)*mov(z,a) >= 0):
         return "ERRO"
-    elif((z-y)<10**(-er)):
-        print('a1')
-        return ((y,z),y+(z-y))
+    elif(z-y<er):
+        return (nitv, (y+z)/2) #se intervalo pequeno suficiente, retorna intervalo e raíz
     else:
-        m = movB(y,a)
+        
+        m = mov(y,a) #m recebe o valor de f(y)
 
     print('\n## Iterações | Ii = {}'.format(nitv))
-    while(k < n):
-        x = float((y+z)/2)
-        if(m*movB(x,a) > 0):
+    while(k < n): #repetir até que o número de iterações seja o determinado
+        x = float((y+z)/2) 
+        if(m*mov(x,a) > 0): #testa as condições para mudança do intervalo    
             y = x
         else:
             z = x
-        nitv = [y,z]
+        nitv = [y,z] 
         
-        ErroRelativo = z-y
-        print("I: {}\tRA: {}\tER: {}".format(nitv,y+ErroRelativo, ErroRelativo))
-        if((z-y)<10**(-er)):
-            return (nitv,y+ErroRelativo)
+        ErroRelativo = abs(abs(z-y)/abs(y)) #cálculo do erro relativo dos extremos do intervalo
+
+        print("I: {}\tRA(d{}): {}\tER: {}".format(nitv,k+1,y+ErroRelativo, ErroRelativo)) #printa intervalo, raíz aproximada e erro relativo, respectivamente, a cada iteração
+        if((z-y)<er): #testa se intervalo é pequeno suficiente
+            return (nitv,(y+z)/2) 
         k = k+1
-    return (nitv,y+ErroRelativo)
+    return (nitv,(y+z)/2)
 
 
 def moveNR(d, a):
-    new_d = d - (a*(e**d) - 4*(d**2))/(a*(e**d) - 8*d)
+    new_d = d - mov(d,a)/(a*(e**d) - 8*d)
     return new_d
 
 
 def newton_raphson(n, a, er):
-    d = (itv[1] - itv[0])/2
-    k = 0
-    nitv = itv
+    d = (itv[1] - itv[0])/2 #chute inicial
+    k = 0 #cont iteração
+    nitv = itv  #intervalo
 
-    if(abs(moveNR(d,a)) < 10**(-er)):
-        return (nitv,d)
+    if(abs(moveNR(d,a)) < er):
+        return (nitv,d) #chute válido (gol!!!)
 
     print('\n## Iterações | Ii = {}'.format(nitv))
     while(k < n):  
-        f = moveNR(d, a)
-        nitv[0] = min(d,f)
+        f = moveNR(d, a) #valor da função
+        nitv[0] = min(d,f) 
         nitv[1] = max(d,f)
         ErroRelativo = abs(abs(f-d)/abs(d))
         print("I: {}\tRA(d{}): {}\tER: {}".format(nitv,k,d,abs(ErroRelativo)))
 
-        if((abs(moveNR(f,a)) < 10**(-er)) or ((abs(f - d)) < 10**(-er))):
-            return (nitv,moveNR(f,a)) # d é a raiz aproximada
+        if((abs(moveNR(f,a)) < er) or ((abs(f - d)) < er)):
+            return (nitv,f) # d é a raiz aproximada moveNR(f,a)
         d = f
         k = k+1
     return (nitv,d)
 
 
 def moveS(d, nd, a):
-    new_d = nd - (a*(e**nd) - 4*(nd**2))*(nd-d)/((a*(e**nd) - 4*(nd**2)) - (a*(e**d) - 4*(d**2)))
+    new_d = nd - (mov(nd,a))*(nd-d)/((mov(nd,a)) - (mov(d,a)))
     return new_d
  
 
@@ -79,21 +84,21 @@ def secante(n, a, er):
     k = 0
     nitv = itv
 
-    if(abs((a*e**d) - (4*d**2)) < 10**(-er)):
+    if(abs(mov(d,a)) < er):
         return (nitv,d)
-    if((abs((a*e**nd) - (4*nd**2)) < 10**(-er)) or (abs(nd-d) < 10**(-er))):
+    if((abs(mov(nd,a)) < er) or (abs(nd-d) < er)):
         return (nitv,nd)
 
     print('\n## Iterações | Ii = {}'.format(nitv))
     while(k < n):
+        
         f = moveS(d, nd, a) # d2
         nitv[0] = min(d,nd,f)
         nitv[1] = max(d,nd,f)
 
-        #ErroRelativod = abs(abs(nd-d)/abs(d))
         ErroRelativond = abs(abs(f-nd)/abs(nd))
         print("I: {}\tRA(d{}): {}\tER(d{}): {}".format(nitv,k+1,nd,k+1,ErroRelativond))
-        if((abs((a*e**f) - (4*f**2)) < 10**(-er)) or (abs(f-nd) < 10**(-er))): 
+        if((abs(mov(f, a)) < er) or (abs(f-nd) < er)): #
             return (nitv,nd)
         d = nd
         nd = f
@@ -102,6 +107,8 @@ def secante(n, a, er):
 
 
 def main():
+    
+    #receber valores iniciais
     n = int(input("Qtde de repetições(n): "))
     a = float(input("Amplitude(a): "))
     er = float(input("Precisão(er): "))
