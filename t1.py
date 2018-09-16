@@ -6,6 +6,14 @@ import random
 itv = [0,1] # intervalo
 e = 2.71 # número de euler
 
+
+def erros(a, b):
+    absoluto = abs(a)-abs(b)
+    relativo = abs(absoluto)/abs(b)
+
+    return (abs(absoluto),abs(relativo))
+    
+
 #função do movimento
 def mov(d, a):
     r = a*(e**d)-4*(d**2)
@@ -56,7 +64,7 @@ def newton_raphson(n, a, er):
     nitv = itv  #intervalo
 
     if(abs(moveNR(d,a)) < er):
-        return (nitv,d) #chute válido (gol!!!)
+        return (nitv,d) #chute válido
 
     print('\n## Iterações | Ii = {}'.format(nitv))
     while(k < n):  
@@ -106,6 +114,10 @@ def secante(n, a, er):
     return 0
 
 
+def truncate(value, n):
+    return int(value*(10**n))/(10**n)
+
+
 def main():
     
     #receber valores iniciais
@@ -137,8 +149,7 @@ def main():
         return 0
         
 
-    print('\n## Resultado\nIntervalo: {} | Raiz Aproximada: {}'.format(Resultado[0],Resultado[1]))
-
+    print('\n## Resultado\nIntervalo: {} | Raiz Aproximada: {}'.format(Resultado[0],truncate(Resultado[1],4)))
 
 if __name__ == "__main__":
     main()
