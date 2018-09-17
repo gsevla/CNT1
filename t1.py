@@ -1,20 +1,18 @@
 import random
 
-# f(d) = a*e^d - 4*d^2
+# f(d) = a*e^d - 4*d^2 | f'(d) = a*e^d - 8*d
 
 # Globals
-itv = [0,1] # intervalo
-e = 2.71 # número de euler
+itv = [0,1] #intervalo
+e = 2.71 #número de euler
 
 
-def erros(a, b):
-    absoluto = abs(a)-abs(b)
-    relativo = abs(absoluto)/abs(b)
-
+def erros(x, xb):
+    absoluto = abs(x-xb)
+    relativo = abs(absoluto)/abs(xb)
     return (abs(absoluto),abs(relativo))
-    
 
-#função do movimento
+
 def mov(d, a):
     r = a*(e**d)-4*(d**2)
     return r
@@ -24,29 +22,28 @@ def bissecao(n, a, er):
     nitv = itv  #copia intervalo para nitv
     y = nitv[0] #inicio intervalo
     z = nitv[1] #fim intervalo
-    k = 0       #cont interações
+    k = 0       #cont iterações
 	
-	#verifica se há raíz entre a e b    
+	#verifica se há raíz entre a e b, o retornando se for o caso
     if(mov(y,a)*mov(z,a) >= 0):
-        return "ERRO"
+        print("Não há raiz entre a e b")
+        return 1
     elif(z-y<er):
-        return (nitv, (y+z)/2) #se intervalo pequeno suficiente, retorna intervalo e raíz
+        return (nitv, (y+z)/2)
     else:
-        
         m = mov(y,a) #m recebe o valor de f(y)
 
     print('\n## Iterações | Ii = {}'.format(nitv))
-    while(k < n): #repetir até que o número de iterações seja o determinado
+    while(k < n):
         x = float((y+z)/2) 
-        if(m*mov(x,a) > 0): #testa as condições para mudança do intervalo    
+        if(m*mov(x,a) > 0): #testa as condições para mudança do intervalo
             y = x
         else:
             z = x
         nitv = [y,z] 
         
-        ErroRelativo = abs(abs(z-y)/abs(y)) #cálculo do erro relativo dos extremos do intervalo
-
-        print("I: {}\tRA(d{}): {}\tER: {}".format(nitv,k+1,y+ErroRelativo, ErroRelativo)) #printa intervalo, raíz aproximada e erro relativo, respectivamente, a cada iteração
+        ErroRelativo = erros(z,y)
+        print("I: {}\tRA(d{}): {}\tER: {}".format(nitv,k+1,y+ErroRelativo[1], ErroRelativo[1]))
         if((z-y)<er): #testa se intervalo é pequeno suficiente
             return (nitv,(y+z)/2) 
         k = k+1
@@ -59,20 +56,20 @@ def moveNR(d, a):
 
 
 def newton_raphson(n, a, er):
-    d = (itv[1] - itv[0])/2 #chute inicial
-    k = 0 #cont iteração
     nitv = itv  #intervalo
+    d = (nitv[1] - nitv[0])/2 #chute inicial
+    k = 0 #cont iteração
 
     if(abs(moveNR(d,a)) < er):
-        return (nitv,d) #chute válido
+        return (nitv,d)
 
     print('\n## Iterações | Ii = {}'.format(nitv))
     while(k < n):  
         f = moveNR(d, a) #valor da função
         nitv[0] = min(d,f) 
         nitv[1] = max(d,f)
-        ErroRelativo = abs(abs(f-d)/abs(d))
-        print("I: {}\tRA(d{}): {}\tER: {}".format(nitv,k,d,abs(ErroRelativo)))
+        ErroRelativo = erros(f,d)
+        print("I: {}\tRA(d{}): {}\tER: {}".format(nitv,k,d,abs(ErroRelativo[1])))
 
         if((abs(moveNR(f,a)) < er) or ((abs(f - d)) < er)):
             return (nitv,f) # d é a raiz aproximada moveNR(f,a)
@@ -104,9 +101,9 @@ def secante(n, a, er):
         nitv[0] = min(d,nd,f)
         nitv[1] = max(d,nd,f)
 
-        ErroRelativond = abs(abs(f-nd)/abs(nd))
-        print("I: {}\tRA(d{}): {}\tER(d{}): {}".format(nitv,k+1,nd,k+1,ErroRelativond))
-        if((abs(mov(f, a)) < er) or (abs(f-nd) < er)): #
+        ErroRelativo = erros(f,nd)
+        print("I: {}\tRA(d{}): {}\tER(d{}): {}".format(nitv,k+1,nd,k+1,ErroRelativo[1]))
+        if((abs(mov(f, a)) < er) or (abs(f-nd) < er)):
             return (nitv,nd)
         d = nd
         nd = f
