@@ -141,7 +141,6 @@ def main():
         print('\nAté a próxima!')
         return 0
         
-
     print('\n## Resultado\nIntervalo: {} | Raiz Aproximada: {}'.format(Resultado[0],truncate(Resultado[1],4)))
 
 
