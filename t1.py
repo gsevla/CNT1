@@ -19,7 +19,7 @@ def mov(d, a):
 
 
 def bissecao(n, a, er):
-    nitv = itv  #copia intervalo para nitv
+    nitv = itv  #intervalo
     y = nitv[0] #inicio intervalo
     z = nitv[1] #fim intervalo
     k = 0       #cont iterações
@@ -41,7 +41,6 @@ def bissecao(n, a, er):
         else:
             z = x
         nitv = [y,z] 
-        
         ErroRelativo = erros(z,y)
         print("I: {}\tRA(d{}): {}\tER: {}".format(nitv,k+1,y+ErroRelativo[1], ErroRelativo[1]))
         if((z-y)<er): #testa se intervalo é pequeno suficiente
@@ -70,7 +69,6 @@ def newton_raphson(n, a, er):
         nitv[1] = max(d,f)
         ErroRelativo = erros(f,d)
         print("I: {}\tRA(d{}): {}\tER: {}".format(nitv,k,d,abs(ErroRelativo[1])))
-
         if((abs(moveNR(f,a)) < er) or ((abs(f - d)) < er)):
             return (nitv,f) # d é a raiz aproximada moveNR(f,a)
         d = f
@@ -84,10 +82,10 @@ def moveS(d, nd, a):
  
 
 def secante(n, a, er):
+    nitv = itv #intervalo
     d = (itv[1] - itv[0])/2 # d0
     nd = itv[1] # d1
-    k = 0
-    nitv = itv
+    k = 0 #cont inicial
 
     if(abs(mov(d,a)) < er):
         return (nitv,d)
@@ -96,11 +94,9 @@ def secante(n, a, er):
 
     print('\n## Iterações | Ii = {}'.format(nitv))
     while(k < n):
-        
         f = moveS(d, nd, a) # d2
         nitv[0] = min(d,nd,f)
         nitv[1] = max(d,nd,f)
-
         ErroRelativo = erros(f,nd)
         print("I: {}\tRA(d{}): {}\tER(d{}): {}".format(nitv,k+1,nd,k+1,ErroRelativo[1]))
         if((abs(mov(f, a)) < er) or (abs(f-nd) < er)):
@@ -117,10 +113,10 @@ def truncate(value, n):
 
 def main():
     
-    #receber valores iniciais
+    # Valores Iniciais
     n = int(input("Qtde de repetições(n): "))
     a = float(input("Amplitude(a): "))
-    er = float(input("Precisão(er): "))
+    er = float(input("Precisão(er): ")) #ex.: 10^4 = 0.0001
 
     # GUI
     print("\n## Métodos")
@@ -147,6 +143,7 @@ def main():
         
 
     print('\n## Resultado\nIntervalo: {} | Raiz Aproximada: {}'.format(Resultado[0],truncate(Resultado[1],4)))
+
 
 if __name__ == "__main__":
     main()
